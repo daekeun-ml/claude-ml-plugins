@@ -75,7 +75,7 @@ VLM/LLM 논문 연구를 위한 Claude Code 플러그인입니다. 아이디어 
 ## 설치
 
 ```
-/plugin marketplace add <owner>/claude-ml-plugins
+/plugin marketplace add daekeun-ml/claude-ml-plugins
 /plugin install ml-research-toolkit@daekeun-ml-plugins
 ```
 

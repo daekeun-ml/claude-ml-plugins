@@ -15,16 +15,40 @@ A Claude Code **plugin marketplace** distributing skills, subagents, and rules f
 
 ```
 # Add the marketplace (once)
-/plugin marketplace add <owner>/claude-ml-plugins
+/plugin marketplace add daekeun-ml/claude-ml-plugins
 
 # Install individual plugins
 /plugin install aws-sagemaker-toolkit@daekeun-ml-plugins
 /plugin install ml-research-toolkit@daekeun-ml-plugins
 ```
 
-Replace `<owner>` with the GitHub account hosting this repo. For local testing, see each plugin's README for `--plugin-dir`.
+For local testing, see each plugin's README for `--plugin-dir`.
 
 > Note: the marketplace name is `daekeun-ml-plugins` and the repository name is `claude-ml-plugins`. They are distinct — the `@daekeun-ml-plugins` in the install command is the marketplace name.
+
+## Update
+
+```
+# Pull the latest marketplace catalog (do this first)
+/plugin marketplace update daekeun-ml-plugins
+
+# Reinstall a plugin to pick up the latest version
+/plugin install aws-sagemaker-toolkit@daekeun-ml-plugins
+```
+
+> `marketplace update` only refreshes the catalog — already-installed plugins are not auto-upgraded. Reinstall as above (or run `/reload-plugins`) to apply the latest version.
+
+## Uninstall
+
+```
+# Remove a single plugin
+/plugin uninstall aws-sagemaker-toolkit@daekeun-ml-plugins
+
+# Remove the whole marketplace (also removes its plugins)
+/plugin marketplace remove daekeun-ml-plugins
+```
+
+> Tip: `/plugin` with no arguments opens an interactive manager where you can browse, enable/disable, update, and remove everything from a menu.
 
 ## Structure
 

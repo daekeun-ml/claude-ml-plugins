@@ -75,7 +75,7 @@ Common rules applied across all research output (AWS-specific rules live only in
 ## Install
 
 ```
-/plugin marketplace add <owner>/claude-ml-plugins
+/plugin marketplace add daekeun-ml/claude-ml-plugins
 /plugin install ml-research-toolkit@daekeun-ml-plugins
 ```
 

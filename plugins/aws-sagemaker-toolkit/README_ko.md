@@ -66,7 +66,7 @@ AWS AI/ML Solutions Architect의 실무를 돕는 Claude Code 플러그인입니
 ## 설치
 
 ```
-/plugin marketplace add <owner>/claude-ml-plugins
+/plugin marketplace add daekeun-ml/claude-ml-plugins
 /plugin install aws-sagemaker-toolkit@daekeun-ml-plugins
 ```
 
@@ -91,15 +91,6 @@ Claude Code 플러그인은 `CLAUDE.md`나 `@import`를 **자동으로 로드하
    @<플러그인 설치 경로>/rules/sagemaker-e2e.md
    ```
    (또는 규칙 파일을 `~/.claude/rules/`로 복사한 뒤 상대경로 `@rules/...`로 import해도 됩니다.)
-
-## 사실 검증 스냅샷이란?
-
-이 플러그인의 스킬들은 AWS 사양을 **기억이 아니라 공식 문서에서 확인한 사실**에 근거해 코드·가이드를 만듭니다. 그 근거를 특정 시점에 검증해 파일로 박제해 둔 것이 "사실 검증 스냅샷"입니다.
-
-- **어디에**: `skills/aws-compute-platform-selector/verified-facts-2026-07.md`, `skills/sagemaker-e2e-finetune/verified-facts-2026-07.md`, 그리고 링크 모음 `skills/aws-compute-platform-selector/aws-reference-links.md`.
-- **무엇이 들어있나**: 예를 들어 "SageMaker endpoint와 Bedrock은 별개 서비스(`sagemaker-runtime` vs `bedrock-runtime`)", "Serverless 추론엔 GPU가 없음", "JumpStart 파인튜닝 API 시그니처", "Bedrock Claude는 inference-profile prefix 필요" 같은 검증된 사실 7개와, 각 사실의 **출처 URL**이 담겨 있습니다.
-- **어떻게 검증했나**: `docs.aws.amazon.com` + 공식 GitHub raw를 교차 확인하고, "이게 정말 맞나"를 적대적으로 반증해 통과한 것만 남겼습니다(2026-07 기준 7/7 confirmed).
-- **⚠️ 표시의 의미**: 리전·GA 여부·모델 ID처럼 빠르게 바뀌는 값입니다. **배포·실행 전에 `aws-fact-verify`로 반드시 재확인**하세요. 정적으로 하드코딩하지 마세요.
 
 ## 외부 의존성
 

@@ -66,7 +66,7 @@ Rule files applied across all output.
 ## Install
 
 ```
-/plugin marketplace add <owner>/claude-ml-plugins
+/plugin marketplace add daekeun-ml/claude-ml-plugins
 /plugin install aws-sagemaker-toolkit@daekeun-ml-plugins
 ```
 
@@ -91,15 +91,6 @@ Claude Code plugins do **not** auto-load `CLAUDE.md` or `@import`. So this plugi
    @<plugin install path>/rules/sagemaker-e2e.md
    ```
    (Or copy the rule files into `~/.claude/rules/` and import them with relative `@rules/...`.)
-
-## What is a "fact-verification snapshot"?
-
-The skills in this plugin build code and guides from AWS facts **confirmed in official docs, not recalled from memory**. A "fact-verification snapshot" is that evidence, verified at a point in time and frozen into a file.
-
-- **Where**: `skills/aws-compute-platform-selector/verified-facts-2026-07.md`, `skills/sagemaker-e2e-finetune/verified-facts-2026-07.md`, and the link registry `skills/aws-compute-platform-selector/aws-reference-links.md`.
-- **What's in it**: verified facts such as "a SageMaker endpoint and Bedrock are separate services (`sagemaker-runtime` vs `bedrock-runtime`)", "Serverless inference has no GPU", "the JumpStart fine-tuning API signature", "Bedrock Claude requires an inference-profile prefix" — each with its **source URL**.
-- **How it was verified**: cross-checked against `docs.aws.amazon.com` + official GitHub raw, then adversarially refuted; only what survived was kept (7/7 confirmed as of 2026-07).
-- **What ⚠️ means**: fast-changing values (region, GA status, model IDs). **Re-verify with `aws-fact-verify` before deploying/executing**, and never hardcode them statically.
 
 ## External dependencies
 

@@ -17,16 +17,40 @@ Claude Code **플러그인 마켓플레이스**입니다. AWS ML 인프라용과
 
 ```
 # 마켓플레이스 등록 (한 번만)
-/plugin marketplace add <owner>/claude-ml-plugins
+/plugin marketplace add daekeun-ml/claude-ml-plugins
 
 # 개별 플러그인 설치
 /plugin install aws-sagemaker-toolkit@daekeun-ml-plugins
 /plugin install ml-research-toolkit@daekeun-ml-plugins
 ```
 
-`<owner>`는 이 저장소를 올린 GitHub 계정으로 바꿔 주세요. 설치 없이 한 세션만 테스트하려면 각 플러그인 README의 `--plugin-dir` 방법을 참고하세요.
+설치 없이 한 세션만 테스트하려면 각 플러그인 README의 `--plugin-dir` 방법을 참고하세요.
 
 > 참고: 마켓플레이스 이름은 `daekeun-ml-plugins`이고, 저장소(repo) 이름은 `claude-ml-plugins`입니다. 둘은 별개이며, 설치 명령의 `@daekeun-ml-plugins`는 마켓플레이스 이름입니다.
+
+## 업데이트
+
+```
+# 먼저 최신 마켓플레이스 카탈로그를 받아옵니다
+/plugin marketplace update daekeun-ml-plugins
+
+# 플러그인을 다시 설치해 최신 버전을 반영합니다
+/plugin install aws-sagemaker-toolkit@daekeun-ml-plugins
+```
+
+> `marketplace update`는 카탈로그만 갱신하며, 이미 설치된 플러그인은 자동 업그레이드되지 않습니다. 위처럼 재설치하거나 `/reload-plugins`를 실행해야 최신 버전이 적용됩니다.
+
+## 삭제
+
+```
+# 플러그인 하나만 삭제
+/plugin uninstall aws-sagemaker-toolkit@daekeun-ml-plugins
+
+# 마켓플레이스 전체 삭제 (포함된 플러그인도 함께 제거)
+/plugin marketplace remove daekeun-ml-plugins
+```
+
+> 팁: 인자 없이 `/plugin`만 입력하면 대화형 관리 화면이 열려, 메뉴에서 조회·활성화/비활성화·업데이트·삭제를 모두 할 수 있습니다.
 
 ## 구조
 
