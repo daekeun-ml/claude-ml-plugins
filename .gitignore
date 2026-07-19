@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Python (in case scripts get added)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node (if any tooling added later)
+node_modules/
+
+# Local Claude state (should never be committed into a plugin)
+.omc/
+.claude/settings.local.json

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace-manifest.json",
+  "name": "daekeun-ml-plugins",
+  "description": "AWS ML infrastructure & VLM/LLM research toolkits for Claude Code (skills, subagents, rules).",
+  "owner": {
+    "name": "daekeun"
+  },
+  "version": "0.1.0",
+  "metadata": {
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "aws-sagemaker-toolkit",
+      "displayName": "AWS SageMaker Toolkit",
+      "source": "./aws-sagemaker-toolkit",
+      "description": "AWS ML infra assets across EC2/HyperPod/SageMaker tiers: platform selection, SageMaker deep-dive, E2E fine-tuning generator, hands-on lab code, and author/verify/lab-code subagents.",
+      "version": "0.1.0",
+      "author": { "name": "daekeun" },
+      "keywords": ["aws", "sagemaker", "hyperpod", "bedrock", "finetuning", "ml"],
+      "category": "ml-infrastructure"
+    },
+    {
+      "name": "ml-research-toolkit",
+      "displayName": "ML Research Toolkit",
+      "source": "./ml-research-toolkit",
+      "description": "VLM/LLM research pipeline: idea/literature, experiment & ablation design, compute planning, training diagnostics, eval analysis, interpretability, paper writing, rebuttals. 21 skills + 12 subagents.",
+      "version": "0.1.0",
+      "author": { "name": "daekeun" },
+      "keywords": ["research", "vlm", "llm", "paper", "experiment"],
+      "category": "research"
+    }
+  ]
+}
