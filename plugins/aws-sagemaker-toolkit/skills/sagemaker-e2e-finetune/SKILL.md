@@ -25,7 +25,7 @@ level: 3
 게이트마다 답을 받아 스펙 파일 `.omc/specs/sme2e-{slug}.md`에 누적한다. 각 게이트는 하위 스킬로 위임.
 
 1. **Task 정의** — 대표 프리셋 제시: 텍스트 분류 · 정보추출(NER/키값) · 요약 · RAG/문서-QA · 함수호출/tool-use · 도메인 챗봇 · 스타일/톤 변환. (사용자 유스케이스를 프리셋에 매핑, 성공기준 1줄.)
-2. **모델·데이터셋 후보** — `hf-cli`로 **오픈 라이선스** 모델 후보 제시(task·크기·license 필터: `hf models list --search --filter --num-parameters`), 데이터셋 후보(`hf datasets list`). 라이선스(apache-2.0/llama 등)와 gated 여부 명시. 사용자가 선택.
+2. **모델·데이터셋 후보** — `hf-cli`로 **오픈 라이선스** 모델 후보 제시(task·크기·license 필터: `hf models list --search --filter --num-parameters`), 데이터셋 후보(`hf datasets list`). 라이선스(apache-2.0/llama 등)와 gated 여부 명시. 사용자가 선택. 🔴 **모달리티도 확인**(verified-facts §8): base가 멀티모달(vision/audio)인지 config로 확인 — 예 gemma-3 4b+·gemma-4 전부 멀티모달, gemma-3 1b/270m만 텍스트 전용. 멀티모달 base를 텍스트 태스크에 쓰면 서빙 시 image-processor 에러 → 텍스트 arch 재-export 또는 `--language-model-only` 필요(G6 배포에서 처리).
 3. **데이터 크기 전략** — 일부 샘플(스모크) / subtask 한정 / full / **synthetic 필요 여부**. seed 데이터 위치·형식.
 4. **(조건부) 합성 데이터** — synthetic 필요 시 `synthetic-data-gen` 위임: seed 특성 분석 후 **생성 건수를 사용자에게 질문**, grounded 생성 계획.
 5. **학습 진입점 (자동 분기 제안)** — 분기 기준은 **task가 아니라 "G2에서 고른 모델이 현행 JumpStart fine-tunable 로스터에 있는가"** (사용자 확인):

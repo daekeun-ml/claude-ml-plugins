@@ -51,6 +51,11 @@ hf.fit({"train": "s3://.../train", "test": "s3://.../test"})
 - real-time(GPU·상시) / async(대용량·큐잉) / serverless(**⚠️ GPU 없음** — LLM/SLM 서빙 부적합, real-time 사용).
 - 배포 직후 `sagemaker-runtime invoke_endpoint` 스모크 셀 + **CloudWatch 다이렉트 링크**(`[[aws-handson-testing]]` 규칙의 `cw_links` 관용구 — 스킬 아님, 전역 로드 규칙).
 - (선택) Bedrock으로 서빙하려면 **Bedrock Custom Model Import**(⚠️ 리전·아키텍처·transformers 버전 제한, 재확인) 노트만.
+- 🔴 **서빙 컨테이너·모델 모달리티**(근거: verified-facts §8·§9):
+  - 컨테이너: **vLLM DLC**(`vllm:<ver>-...-sagemaker`, OpenAI 호환) 또는 **DJL LMI**(`djl-inference`, 내부 vLLM). 모델 지원은 **번들 vLLM 버전**에 달림 — 최신 모델(gemma-4 등, vLLM≥0.19)은 available_images로 태그 확인 후 선택.
+  - **머지 모델은 tar.gz 루트**(`/opt/ml/model`)에 저장(어댑터는 `adapter/` 하위). 루트에 `config.json` 없이 `adapter_config.json`만 있으면 "Failed to detect engine of the model"로 죽음.
+  - **멀티모달 base(gemma-3 4b+/gemma-4 전부)를 텍스트로 서빙**: 그냥 올리면 vLLM이 image-processor를 찾다 `OSError`로 죽음. 해법 = 텍스트 arch로 재-export(`*ForCausalLM`) **또는** `--language-model-only`/`OPTION_LIMIT_MM_PER_PROMPT`(mm 모달리티 0). 배포 전 **로컬 vLLM로 프리플라이트** 권장.
+  - 인스턴스: LoRA 기준 단일 L4/L40S(예 `ml.g6.2xlarge`)면 ~8B 모델 QLoRA 가능. 12B/26B급은 더 큰 인스턴스(`ml.g6.12xlarge` 등).
 
 ## 노트북 규약 (aws-ml-lab-code 상속)
 상단 markdown 셀 **TL;DR → Pain → Why** → 설치(pin) → 설정(role/region/bucket **플레이스홀더**) → 데이터(+inspector 검증) → 학습(.fit) → **CloudWatch 링크 셀** → 배포+invoke 스모크 → **🔴 cleanup 셀**(`predictor.delete_endpoint()`, `sagemaker.delete_model()` — 안 하면 과금 지속).

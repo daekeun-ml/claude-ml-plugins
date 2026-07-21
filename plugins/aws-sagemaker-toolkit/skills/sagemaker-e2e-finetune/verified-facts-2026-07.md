@@ -1,7 +1,8 @@
 # SageMaker E2E 파인튜닝 — 사실 라이브 검증 스냅샷 (2026-07)
 
 > `sagemaker-e2e-finetune` / `sagemaker-finetune-lab` / `synthetic-data-gen` /
-> `bedrock-agentic-integration` 에셋 작성 시 근거. 검증: docs.aws + 공식 GitHub raw 교차 + 적대적 refute (7/7 confirmed).
+> `bedrock-agentic-integration` 에셋 작성 시 근거. 검증: docs.aws + 공식 GitHub raw + HF API/raw config.json 교차 + 적대적 refute.
+> §1–7 = SageMaker/Bedrock/agentic 기반(7/7 confirmed). §8–9 = Gemma 모델 패밀리·서빙 컨테이너(2026-07-21 실측).
 > ⚠️ = 빠르게 바뀜 → 에셋 배포/실행 전 재검증(`aws-fact-checker`/`aws-fact-verify`). 정적 하드코딩 금지.
 
 ## 1. SageMaker JumpStart 파인튜닝 (표준 경로)
@@ -52,5 +53,26 @@
 - ⚠️ 라이브러리 API 시그니처 불안정 → 하드코딩 금지, pin 버전 재확인.
 - seed 통계 분석은 `huggingface-datasets` 스킬(Dataset Viewer API) 활용.
 
+## 8. Gemma 모델 패밀리 — 세대·모달리티·라이선스 (모델 선택 시 필수)
+> 라이브 검증 2026-07-21 (HF API + raw config.json 무인증 취득 + 적대적 refute). ⚠️ 로스터·gating은 분기마다 변동 → 배포 전 모델카드 재확인.
+- **"4b"는 크기지 세대가 아니다.** `google/gemma-3-4b-it` = Gemma **3** 세대의 4B. `gemma-4-*` = 별개의 최신 세대. 혼동 금지("gemma-4"를 gemma-3 오타로 취급 ❌).
+- **Gemma 3 모달리티**: 270m·1b = **텍스트 전용**(`Gemma3ForCausalLM`, `model_type gemma3_text`). **4b·12b·27b = 멀티모달**(text+vision, `Gemma3ForConditionalGeneration`). 전부 커스텀 `gemma` 라이선스 + **GATED**(HF 토큰+약관).
+- **Gemma 4 모달리티**: **전 사이즈 멀티모달, 텍스트 전용 변종 없음.** apache-2.0 + **UNGATED**(토큰 불필요).
+  - 사이즈/아키텍처: **E2B·E4B**(effective 2.3B·4.5B, PLE 임베딩; `Gemma4ForConditionalGeneration`/`gemma4`; vision+**audio**) · **12B**(dense 11.95B; `Gemma4UnifiedForConditionalGeneration`/`gemma4_unified`; vision+audio) · **26B-A4B**(MoE total 25.2B/active 3.8B, 128 experts; `Gemma4ForConditionalGeneration`/`gemma4`; vision만, **audio 없음**) · **31B**(dense; `gemma4`; vision만).
+  - "**E**"=effective(PLE, MoE 아님), "**A4B**"=active 4B(MoE). transformers 요구: E계열/26B/31B **≥5.5.0**, 12B(unified) **≥5.10.0**.
+- 🔴 **멀티모달 base를 텍스트로 파인튜닝→서빙 시 함정**: `AutoModelForCausalLM.from_pretrained`는 vision tower를 **버리지 않고** 멀티모달 모델(`*ForConditionalGeneration`)을 로드한다(transformers 매핑). model+tokenizer만 저장하고 `preprocessor_config.json`을 빠뜨리면, 서빙 시 vLLM이 멀티모달 경로로 로드→`OSError: Can't load image processor`로 죽는다.
+  - **견고한 해법(권장)**: 머지 후 **language submodule만 텍스트 arch로 재-export**(config `architectures=["Gemma{3,4}ForCausalLM"]`, `model_type gemma{3,4}_text`) → vLLM이 순수 텍스트 경로로 라우팅(vision/audio tower·image processor 불필요). weight prefix `model.language_model.*`→`model.*` 재키잉이 핵심.
+  - **즉시 언블록(footgun)**: vLLM `--language-model-only`(= 모든 mm 모달리티 limit 0). LMI env `OPTION_LIMIT_MM_PER_PROMPT`(E2B/E4B/12B는 audio도 있으니 `{"image":0,"audio":0}`, 26B/31B는 `{"image":0}`). 기본값이 0이 아니므로 명시 필수. vision tower는 여전히 VRAM에 로드되고, env 누락 재배포 시 재발.
+- 순수 텍스트 태스크(추출/분류/요약/QA)면 텍스트 전용 base가 정석이나, 텍스트 전용 Gemma는 gemma-3 **1b/270m**뿐(gated). ungated가 필요하면 gemma-4(전부 멀티모달)를 위 재-export로 텍스트 서빙.
+
+## 9. 서빙 컨테이너 — vLLM DLC vs DJL LMI (버전이 모델 지원을 좌우)
+> AWS available_images(aws.github.io/deep-learning-containers) + vLLM/transformers 소스 교차, 2026-07-21.
+- AWS는 **독립 vLLM DLC**를 제공: `763104351884.dkr.ecr.<region>.amazonaws.com/vllm:0.25.1-gpu-py312-cu130-ubuntu22.04-sagemaker`(및 `-ec2`). 최신 vLLM(현행 0.25.1). OpenAI 호환 서버.
+- **DJL LMI**(`djl-inference`)는 내부에 vLLM을 번들 — 태그마다 vLLM 버전이 다르다. 최신 LMI(예 27.0.0)=vLLM 0.23.1. 구 **LMI 0.36.0**(=`0.36.0-lmi26.0.0-cu130`)은 더 낮은 vLLM(0.19 미만)이라 gemma-4 미지원.
+- 🔴 **모델 지원 = 번들 vLLM 버전 문제.** gemma-4 서빙엔 **vLLM ≥ 0.19** 필요(gemma-4 arch가 vLLM registry에 그때 추가됨). 따라서 gemma-4는 vLLM DLC 0.25.1 또는 vLLM≥0.19 번들 LMI에서만. ⚠️ 컨테이너 태그별 번들 vLLM/transformers 버전은 available_images에서 배포 직전 재확인.
+- **저장 레이아웃**: 서빙 컨테이너는 `HF_MODEL_ID=/opt/ml/model`(tar.gz 루트)에서 `config.json`으로 엔진을 감지. 🔴 **머지 모델을 루트에** 저장(어댑터는 하위 `adapter/`). 루트에 `adapter_config.json`만 있으면 "Failed to detect engine of the model"로 죽는다.
+- ⚠️ SageMaker Python SDK `image_uris.retrieve(framework="djl-lmi", ...)`가 아는 최신 태그는 SDK 버전에 매임 → 최신 컨테이너는 `LMI_IMAGE_URI`/완전 URI로 직접 지정하고 available_images로 태그 재확인.
+
 ## 에셋 작성 시 필수 규칙 (오귀속/사고 방지)
 1. endpoint(`sagemaker-runtime`) ≠ Bedrock(`bedrock-runtime`). 2. Bedrock Claude는 inference-profile prefix, 모델ID 하드코딩 금지. 3. JumpStart vs HF DLC 경로 혼용 금지. 4. gated 모델 EULA·라이선스 전파. 5. 합성데이터 grounded + 생성 건수 사용자 확인. 6. agentic SDK(Strands/LangGraph/AgentCore) 빠른 변화 → 작성 전 검증, 미검증 `# TODO verify`. 7. 모든 에셋에 cleanup(endpoint/agent teardown) + CloudWatch 링크 + 비용 가드.
+8. **모델 모달리티 먼저 확인**(§8): base가 멀티모달인지(vision/audio) 확인 없이 텍스트 파이프라인을 짜면 서빙에서 image-processor 에러로 죽는다. 텍스트 서빙은 재-export 또는 `--language-model-only`. 9. **서빙 컨테이너 버전이 모델 지원을 좌우**(§9): 최신 모델(gemma-4 등)은 vLLM 버전 요건을 available_images로 확인 후 컨테이너 선택. 10. 머지 모델은 tar.gz **루트**에 저장.
