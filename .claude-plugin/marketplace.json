@@ -5,14 +5,14 @@
   "owner": {
     "name": "daekeun"
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "plugins": [
     {
       "name": "aws-sagemaker-toolkit",
       "displayName": "AWS SageMaker Toolkit",
       "source": "./plugins/aws-sagemaker-toolkit",
       "description": "AWS ML infra assets across EC2/HyperPod/SageMaker tiers: platform selection, SageMaker deep-dive, E2E fine-tuning generator, hands-on lab code, and author/verify/lab-code subagents.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": { "name": "daekeun" },
       "keywords": ["aws", "sagemaker", "hyperpod", "bedrock", "finetuning", "ml"],
       "category": "ml-infrastructure"
@@ -22,7 +22,7 @@
       "displayName": "ML Research Toolkit",
       "source": "./plugins/ml-research-toolkit",
       "description": "VLM/LLM research pipeline: idea/literature, experiment & ablation design, compute planning, training diagnostics, eval analysis, interpretability, paper writing, rebuttals. 21 skills + 12 subagents.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": { "name": "daekeun" },
       "keywords": ["research", "vlm", "llm", "paper", "experiment"],
       "category": "research"

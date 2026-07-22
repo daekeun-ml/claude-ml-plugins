@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "aws-sagemaker-toolkit",
   "displayName": "AWS SageMaker Toolkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "AWS ML infrastructure assets across EC2 (self-managed) / HyperPod (semi-managed) / SageMaker (fully-managed) tiers — platform selection, SageMaker deep-dive, E2E fine-tuning generator (interview → HF model/data → synthetic → training → endpoint → Bedrock/Strands/AgentCore agentic), hands-on lab code, plus author/verify/lab-code subagents. Korean-first, fact-verified, tier-misattribution-guarded.",
   "author": {
     "name": "daekeun"

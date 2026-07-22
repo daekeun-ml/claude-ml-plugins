@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ml-research-toolkit",
   "displayName": "ML Research Toolkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "VLM/LLM research assets across the full pipeline — idea brainstorming, literature scouting, experiment/ablation design, compute-budget planning, training diagnostics, VQA eval analysis, interpretability, paper writing (LaTeX/figures/claim-evidence), and rebuttals. 21 skills + 12 subagents.",
   "author": {
     "name": "daekeun"
