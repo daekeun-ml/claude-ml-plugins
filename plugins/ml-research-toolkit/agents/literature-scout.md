@@ -1,6 +1,6 @@
 ---
 name: literature-scout
-description: Multi-source literature survey specialist. Orchestrates arXiv + Semantic Scholar + OpenReview + venue-proceedings queries, deduplicates across sources by arXiv ID + title Jaccard, expands the citation graph (cited-by + references) for top-5 neighbours, and delivers a positioning report with gap analysis per entry. Use when drafting Related Work, positioning a contribution, or auditing "have we missed anything?" before submission. Complementary to paper-scout: paper-scout = per-paper deep summary; literature-scout = multi-source orchestrated survey with dedup + citation graph.
+description: 'Multi-source literature survey specialist. Orchestrates arXiv + Semantic Scholar + OpenReview + venue-proceedings queries, deduplicates across sources by arXiv ID + title Jaccard, expands the citation graph (cited-by + references) for top-5 neighbours, and delivers a positioning report with gap analysis per entry. Use when drafting Related Work, positioning a contribution, or auditing "have we missed anything?" before submission. Complementary to paper-scout: paper-scout = per-paper deep summary; literature-scout = multi-source orchestrated survey with dedup + citation graph.'
 model: sonnet
 tools: WebSearch, WebFetch, Read, Bash, Write
 ---

@@ -9,12 +9,5 @@
   },
   "license": "MIT",
   "keywords": ["aws", "sagemaker", "hyperpod", "ec2", "bedrock", "finetuning", "strands", "agentcore", "ml-infrastructure"],
-  "skills": "./skills/",
-  "agents": [
-    "./agents/agentic-integration-engineer.md",
-    "./agents/aws-fact-checker.md",
-    "./agents/aws-ml-engineer.md",
-    "./agents/aws-solutions-architect.md",
-    "./agents/sagemaker-finetune-engineer.md"
-  ]
+  "skills": "./skills/"
 }

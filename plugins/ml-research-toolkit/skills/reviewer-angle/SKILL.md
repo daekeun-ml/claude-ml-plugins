@@ -1,6 +1,6 @@
 ---
 name: reviewer-angle
-description: Generate ≥5 likely reviewer objections to a VLM/LLM paper draft section and draft 1–3 sentence responses for each. Targets the common VLM reviewer attack vectors: fairness of baseline, OOD leakage, seed variance, cherry-picked benchmarks, unsupported superlatives, missing ablation, causal overclaim. Use before declaring a draft section "done".
+description: 'Generate ≥5 likely reviewer objections to a VLM/LLM paper draft section and draft 1–3 sentence responses for each. Targets the common VLM reviewer attack vectors: fairness of baseline, OOD leakage, seed variance, cherry-picked benchmarks, unsupported superlatives, missing ablation, causal overclaim. Use before declaring a draft section "done".'
 argument-hint: "<draft section path or inline text>, <evidence inventory>"
 level: 3
 ---

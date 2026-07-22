@@ -9,19 +9,5 @@
   },
   "license": "MIT",
   "keywords": ["research", "vlm", "llm", "paper", "experiment", "interpretability"],
-  "skills": "./skills/",
-  "agents": [
-    "./agents/academic-writer.md",
-    "./agents/compute-planner.md",
-    "./agents/experiment-designer.md",
-    "./agents/interpretability-researcher.md",
-    "./agents/literature-scout.md",
-    "./agents/paper-architect.md",
-    "./agents/paper-scout.md",
-    "./agents/rebuttal-writer.md",
-    "./agents/research-ideator.md",
-    "./agents/tex-polisher.md",
-    "./agents/training-diagnostician.md",
-    "./agents/vqa-eval-analyst.md"
-  ]
+  "skills": "./skills/"
 }

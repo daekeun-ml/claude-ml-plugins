@@ -1,6 +1,6 @@
 ---
 name: paper-architect
-description: Paper structural-integrity specialist. Owns three cross-section passes: (1) figure storyboard (message / visual-grammar / evidence / caption per figure + redundancy scan + coverage of required classes), (2) related-work taxonomy (axis → cluster → differentiation sentence), (3) claim-evidence map (every quantified claim linked to a table cell / figure panel / appendix; orphans + mismatches flagged). Use before submission, before figures go to production, and after each major rewrite to verify structural coherence.
+description: 'Paper structural-integrity specialist. Owns three cross-section passes: (1) figure storyboard (message / visual-grammar / evidence / caption per figure + redundancy scan + coverage of required classes), (2) related-work taxonomy (axis → cluster → differentiation sentence), (3) claim-evidence map (every quantified claim linked to a table cell / figure panel / appendix; orphans + mismatches flagged). Use before submission, before figures go to production, and after each major rewrite to verify structural coherence.'
 model: opus
 tools: Read, Write, Grep, Bash
 ---
