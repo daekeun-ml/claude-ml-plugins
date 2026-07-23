@@ -77,11 +77,13 @@
 ## 10. 배포 모드 3계층 — ModelBuilder `mode` (SDK v3, 로컬→클라우드)
 > introspect 검증(sagemaker 3.16.0), 2026-07-23. `sagemaker.serve.mode.function_pointers.Mode`.
 - `ModelBuilder(..., mode=Mode.X)` (또는 `build(mode=)`)로 **같은 코드가 3개 대상**에 배포된다. `deploy()`가 아니라 **생성자/build**에 mode를 준다(실측). 기본값 `SAGEMAKER_ENDPOINT`.
-  - `Mode.IN_PROCESS` — 현재 파이썬 프로세스에서 서빙(초경량 로직 검증). ⚠️ 백엔드/모델에 따라 미지원일 수 있음.
+  - `Mode.IN_PROCESS` — 현재 파이썬 프로세스에서 서빙(초경량 로직 검증). 🔴 **생성형 LLM 미지원**(아래 함정).
   - `Mode.LOCAL_CONTAINER` — 로컬 Docker 컨테이너(endpoint와 동일 컨테이너 재현). 로컬 Docker+GPU 필요.
   - `Mode.SAGEMAKER_ENDPOINT` — 실제 클라우드 endpoint(과금).
-- 권장 흐름: 로컬(IN_PROCESS/LOCAL_CONTAINER)로 먼저 검증 → mode만 SAGEMAKER_ENDPOINT로 바꿔 배포. `vllm serve` 직접 실행(서빙 엔진 자체 검증)과는 목적이 다르다(전자는 배포 API 동일성 검증).
-- ⚠️ import 경로는 `from sagemaker.serve.mode.function_pointers import Mode` (실측). `sagemaker.serve`에 직접 `Mode` 없음.
+- 🔴 **IN_PROCESS 함정(실측 refute)**: `InProcessServer`는 `model=<HF id 문자열>`을 `transformers.pipeline` 또는 `SentenceTransformer`(임베딩)로만 로드 시도(sagemaker/serve/model_server/in_process_model_server/app.py). 즉 **분류·임베딩 등 경량 모델 전용**. 생성형 멀티모달 LLM(gemma-4)은 pipeline이 `AnyToAnyPipeline`으로 잡혀 `librosa` 요구→실패, SentenceTransformer 폴백도 실패(`UnboundLocalError`). LLM을 IN_PROCESS로 띄우려면 `InferenceSpec`(load/invoke) 직접 구현 필요(사실상 엔진 재구현). → **SLM/LLM 로컬 검증은 IN_PROCESS 말고 `LOCAL_CONTAINER` 또는 `vllm serve` 직접**.
+  - 또한 IN_PROCESS도 `ModelBuilder.__post_init__`이 `role_arn`을 해석하므로(IAM user면 `RoleValidationError`) 로컬 실행이라도 `role_arn=`을 넘겨야 한다.
+- 권장 흐름: 경량 모델은 IN_PROCESS, **LLM/SLM은 LOCAL_CONTAINER**로 먼저 검증 → mode만 SAGEMAKER_ENDPOINT로 바꿔 배포. `vllm serve` 직접 실행(서빙 엔진 자체 검증)과는 목적이 다르다(mode는 배포 API 동일성 검증).
+- ⚠️ import 경로는 `from sagemaker.serve.mode.function_pointers import Mode` (실측). `sagemaker.serve`에 직접 `Mode` 없음. `SchemaBuilder`는 `sagemaker.serve.builder.schema_builder`.
 
 ## 11. SageMaker managed 평가 — evaluator 3종 (SDK v3 `sagemaker.train.evaluate`)
 > introspect 검증(sagemaker 3.16.0), 2026-07-23. 로컬 메트릭 계산과 **별개**의 관리형 평가 잡(별도 컴퓨트·비용).
