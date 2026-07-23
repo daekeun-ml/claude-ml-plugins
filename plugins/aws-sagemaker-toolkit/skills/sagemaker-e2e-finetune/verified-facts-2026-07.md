@@ -74,6 +74,16 @@
 - **저장 레이아웃**: 서빙 컨테이너는 `HF_MODEL_ID=/opt/ml/model`(tar.gz 루트)에서 `config.json`으로 엔진을 감지. 🔴 **머지 모델을 루트에** 저장(어댑터는 하위 `adapter/`). 루트에 `adapter_config.json`만 있으면 "Failed to detect engine of the model"로 죽는다.
 - ⚠️ SageMaker Python SDK `image_uris.retrieve(framework="djl-lmi", ...)`가 아는 최신 태그는 SDK 버전에 매임 → 최신 컨테이너는 `LMI_IMAGE_URI`/완전 URI로 직접 지정하고 available_images로 태그 재확인.
 
+### 9.1 🔴 gemma-4 서빙 매트릭스 — KV-sharing이 엔진을 가른다 (실측 2026-07-23)
+> 로컬 vLLM/HF DLC 컨테이너 직접 실행 + config.json + vLLM/AWS-DLC 소스 교차. **버전 문제가 아니라 아키텍처 미지원 문제.**
+- **E2B/E4B는 `num_kv_shared_layers>0`** (E4B=42층 중 18층 KV-shared, E2B=35 중 20). KV-shared 레이어엔 `k_norm`이 없는데(원본 구조), **vLLM `gemma4.py`가 전 레이어에 `k_norm`을 무조건 등록** → `ValueError: weights not initialized: layers.24~41.self_attn.k_norm`. vLLM 이슈 **#44788 OPEN, main도 미수정**.
+  - 🔴 **vLLM 계열 전부 실패**(실측): vanilla vLLM 0.22/0.23/0.25.1, **AWS vLLM DLC**(`vllm:server-sagemaker-cuda-v1.4`=vLLM0.20.0dev/cu129, `v2.0`=0.22.1rc/cu130, `v2.1`=0.24.0/cu130 — 전부 vanilla 번들, gemma4 패치 없음), 최신 DJL LMI(내부 vLLM), TGI(gemma4 arch 자체 없음), SGLang(WIP). 
+  - ⚠️ **오귀속 주의**: "AWS vLLM DLC가 gemma-4 validated" 주장은 **KV-shared=0인 31B/12B 한정**. E4B는 아님. 사이즈 미구분에서 온 tier 오귀속(고객/SA 실사례).
+- **12B/26B-A4B/31B은 `num_kv_shared_layers=0`** → vanilla vLLM·AWS vLLM DLC로 정상(연속배칭 + native `/v1/chat/completions`).
+- **E2B/E4B 서빙 유일 경로 = transformers**(KV-sharing 정상 처리, 로컬 로드+생성 실측 OK): **HF PyTorch Inference DLC**(`huggingface-pytorch-inference:2.6.0-transformers5.5.3-...`, transformers 5.5.3=gemma4 포함) + `code/inference.py` 커스텀 핸들러(model_fn/predict_fn). 단건 추론(연속배칭 없음).
+  - 🔴 SDK `Mode.LOCAL_CONTAINER`(MMS) 로컬 검증 실측: `model_path/**code/**`가 `/opt/ml/model`에 마운트되므로 **모델 전체+inference.py+requirements를 code/에** 둬야 함. `requirements.txt`에 **`sentencepiece`,`tiktoken`,`accelerate` 필수**(gemma 토크나이저 변환). deploy()는 docker-py 60s 타임아웃/ping-health 실패해도 컨테이너는 정상 기동(직접 `docker logs`로 "Model model loaded" + `curl :8080/invocations` 확인).
+- **AWS vLLM DLC = 실재**(ECR `763104351884.../vllm`, 태그 스킴 `server-sagemaker-cuda-vX.Y`가 숫자 스킴과 별개). vLLM 네이티브 OpenAI 서버 + upstream 내장 SageMaker api_router(`/invocations` 매핑, 서버측 chat template). AMI: `al2-...-gpu-3-1`=driver550/cu124(v1.4/cu129 실행), `al2023-...-gpu-4-1`=driver580/cu130(v2.0 실행).
+
 ## 10. 배포 모드 3계층 — ModelBuilder `mode` (SDK v3, 로컬→클라우드)
 > introspect 검증(sagemaker 3.16.0), 2026-07-23. `sagemaker.serve.mode.function_pointers.Mode`.
 - `ModelBuilder(..., mode=Mode.X)` (또는 `build(mode=)`)로 **같은 코드가 3개 대상**에 배포된다. `deploy()`가 아니라 **생성자/build**에 mode를 준다(실측). 기본값 `SAGEMAKER_ENDPOINT`.
