@@ -3,6 +3,7 @@
 > `sagemaker-e2e-finetune` / `sagemaker-finetune-lab` / `synthetic-data-gen` /
 > `bedrock-agentic-integration` 에셋 작성 시 근거. 검증: docs.aws + 공식 GitHub raw + HF API/raw config.json 교차 + 적대적 refute.
 > §1–7 = SageMaker/Bedrock/agentic 기반(7/7 confirmed). §8–9 = Gemma 모델 패밀리·서빙 컨테이너(2026-07-21 실측).
+> §10–11 = SDK v3 배포 모드(ModelBuilder `mode`)·managed 평가(evaluator 3종), sagemaker 3.16.0 introspect(2026-07-23).
 > ⚠️ = 빠르게 바뀜 → 에셋 배포/실행 전 재검증(`aws-fact-checker`/`aws-fact-verify`). 정적 하드코딩 금지.
 
 ## 1. SageMaker JumpStart 파인튜닝 (표준 경로)
@@ -72,6 +73,25 @@
 - 🔴 **모델 지원 = 번들 vLLM 버전 문제.** gemma-4 서빙엔 **vLLM ≥ 0.19** 필요(gemma-4 arch가 vLLM registry에 그때 추가됨). 따라서 gemma-4는 vLLM DLC 0.25.1 또는 vLLM≥0.19 번들 LMI에서만. ⚠️ 컨테이너 태그별 번들 vLLM/transformers 버전은 available_images에서 배포 직전 재확인.
 - **저장 레이아웃**: 서빙 컨테이너는 `HF_MODEL_ID=/opt/ml/model`(tar.gz 루트)에서 `config.json`으로 엔진을 감지. 🔴 **머지 모델을 루트에** 저장(어댑터는 하위 `adapter/`). 루트에 `adapter_config.json`만 있으면 "Failed to detect engine of the model"로 죽는다.
 - ⚠️ SageMaker Python SDK `image_uris.retrieve(framework="djl-lmi", ...)`가 아는 최신 태그는 SDK 버전에 매임 → 최신 컨테이너는 `LMI_IMAGE_URI`/완전 URI로 직접 지정하고 available_images로 태그 재확인.
+
+## 10. 배포 모드 3계층 — ModelBuilder `mode` (SDK v3, 로컬→클라우드)
+> introspect 검증(sagemaker 3.16.0), 2026-07-23. `sagemaker.serve.mode.function_pointers.Mode`.
+- `ModelBuilder(..., mode=Mode.X)` (또는 `build(mode=)`)로 **같은 코드가 3개 대상**에 배포된다. `deploy()`가 아니라 **생성자/build**에 mode를 준다(실측). 기본값 `SAGEMAKER_ENDPOINT`.
+  - `Mode.IN_PROCESS` — 현재 파이썬 프로세스에서 서빙(초경량 로직 검증). ⚠️ 백엔드/모델에 따라 미지원일 수 있음.
+  - `Mode.LOCAL_CONTAINER` — 로컬 Docker 컨테이너(endpoint와 동일 컨테이너 재현). 로컬 Docker+GPU 필요.
+  - `Mode.SAGEMAKER_ENDPOINT` — 실제 클라우드 endpoint(과금).
+- 권장 흐름: 로컬(IN_PROCESS/LOCAL_CONTAINER)로 먼저 검증 → mode만 SAGEMAKER_ENDPOINT로 바꿔 배포. `vllm serve` 직접 실행(서빙 엔진 자체 검증)과는 목적이 다르다(전자는 배포 API 동일성 검증).
+- ⚠️ import 경로는 `from sagemaker.serve.mode.function_pointers import Mode` (실측). `sagemaker.serve`에 직접 `Mode` 없음.
+
+## 11. SageMaker managed 평가 — evaluator 3종 (SDK v3 `sagemaker.train.evaluate`)
+> introspect 검증(sagemaker 3.16.0), 2026-07-23. 로컬 메트릭 계산과 **별개**의 관리형 평가 잡(별도 컴퓨트·비용).
+- 3종 클래스(모두 `BaseEvaluator` 상속, `.evaluate()` → execution 객체, `.wait()`/`.status`):
+  - `sagemaker.train.evaluate.benchmark_evaluator.**BenchMarkEvaluator**` (⚠️ 대문자 M) — 표준 벤치. `benchmark=` enum: mmlu/mmlu_pro/bbh/gpqa/math/ifeval/mmmu/strong_reject/llm_judge. 일반 능력.
+  - `...llm_as_judge_evaluator.LLMAsJudgeEvaluator` — `evaluator_model`(judge LLM) + `dataset` + `builtin_metrics`(예 Correctness/Helpfulness/Faithfulness)/`custom_metrics`. 주관적 태스크.
+  - `...custom_scorer_evaluator.CustomScorerEvaluator` — `evaluator`(= `sagemaker.ai_registry.evaluator.Evaluator.create(name, function_source='scorer.py')` / BuiltInMetric / ARN) + `dataset`. 프로그램적 채점(정답 명확).
+- 공통 필드: `model`(str JumpStart ID | `BaseTrainer`/`ModelTrainer` | ModelPackage ARN | S3 checkpoint), `s3_output_path`(req), `role`, `sagemaker_session`, `region`, `compute`, `evaluate_base_model`(baseline 대비), `mlflow_*`(추적).
+- 트랙 매핑 권장: BenchMark=공통(일반능력) · CustomScorer=추출/분류(arg_f1·라벨) · LLMAsJudge=요약/QA(주관).
+- ⚠️ 이 API는 비교적 신규 → 필드/벤치명/빌트인메트릭은 실행 전 설치 SDK docstring으로 재확인(`help(BenchMarkEvaluator)`).
 
 ## 에셋 작성 시 필수 규칙 (오귀속/사고 방지)
 1. endpoint(`sagemaker-runtime`) ≠ Bedrock(`bedrock-runtime`). 2. Bedrock Claude는 inference-profile prefix, 모델ID 하드코딩 금지. 3. JumpStart vs HF DLC 경로 혼용 금지. 4. gated 모델 EULA·라이선스 전파. 5. 합성데이터 grounded + 생성 건수 사용자 확인. 6. agentic SDK(Strands/LangGraph/AgentCore) 빠른 변화 → 작성 전 검증, 미검증 `# TODO verify`. 7. 모든 에셋에 cleanup(endpoint/agent teardown) + CloudWatch 링크 + 비용 가드.
