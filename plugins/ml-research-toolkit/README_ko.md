@@ -70,7 +70,7 @@ VLM/LLM 논문 연구를 위한 Claude Code 플러그인입니다. 아이디어 
 연구 산출물 전반에 항상 적용되는 공통 규칙입니다(AWS 전용 규칙은 자매 플러그인에만 있고 여기엔 없습니다).
 - `fact-integrity` — 사실/인용 무결성: 확인 못 한 것을 confirmed로 쓰지 않기, 1차 소스 우선, 검증은 `arxiv-verify`/`citation-workflow`에 위임.
 - `code-style` — 코드 스타일: 주변 코드 닮기, seed 고정으로 재현성, 노트북은 초심자 친화.
-- `communication` — 어조·언어: 한국어 우선, 용어는 영어, 과장 금지, 존댓말.
+- `communication` — 어조와 언어: 한국어 우선, 용어는 영어, 과장 금지, 존댓말. 표기 스타일(em dash 금지, 중간점 나열 금지, 해요체와 습니다체 혼용)과 **툴 호출 파라미터 리터럴 UTF-8**(`\uXXXX` 이스케이프 금지, 한글 깨짐 원인: [claude-code#83033](https://github.com/anthropics/claude-code/issues/83033))도 포함합니다.
 
 ## 설치
 

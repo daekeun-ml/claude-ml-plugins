@@ -60,7 +60,7 @@ Rule files applied across all output.
 - `aws-handson-testing` — the hands-on testing ladder (GPU/CPU/SageMaker/Docker/endpoint/agentic) + CloudWatch links
 - `sagemaker-e2e` — E2E fine-tuning invariants (endpoint↔Bedrock separation, JumpStart vs HF DLC, licensing, synthetic data, cleanup)
 - `code-style` — code style (match surrounding code, small diffs, beginner-friendly notebooks)
-- `communication` — tone & language (Korean-first, English for terms, no overclaiming)
+- `communication` — tone & language (Korean-first, English for terms, no overclaiming) + anti-slop notation (no em dash, no `·` keyword lists, mixed 해요체/습니다체) + **literal UTF-8 in tool-call parameters** (never `\uXXXX` escapes, which corrupt Hangul: [claude-code#83033](https://github.com/anthropics/claude-code/issues/83033))
 - `fact-integrity` — fact/citation integrity (never write a guess as confirmed, primary sources, delegate verification)
 
 ## Install

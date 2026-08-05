@@ -70,7 +70,7 @@ A Claude Code plugin for VLM/LLM paper research. It bundles skills and subagents
 Common rules applied across all research output (AWS-specific rules live only in the sibling plugin, not here).
 - `fact-integrity` — fact/citation integrity: never write an unconfirmed item as confirmed, prefer primary sources, delegate verification to `arxiv-verify`/`citation-workflow`.
 - `code-style` — code style: match surrounding code, fix seeds for reproducibility, beginner-friendly notebooks.
-- `communication` — tone & language: Korean-first, English for terms, no overclaiming.
+- `communication` — tone & language: Korean-first, English for terms, no overclaiming. Also anti-slop notation (no em dash, no `·` keyword lists, mixed 해요체/습니다체) and **literal UTF-8 in tool-call parameters** (never `\uXXXX` escapes, which corrupt Hangul: [claude-code#83033](https://github.com/anthropics/claude-code/issues/83033)).
 
 ## Install
 

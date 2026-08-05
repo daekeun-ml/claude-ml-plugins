@@ -60,7 +60,7 @@ AWS AI/ML Solutions Architect의 실무를 돕는 Claude Code 플러그인입니
 - `aws-handson-testing` — 실습 코드 테스트 사다리(GPU/CPU/SageMaker/Docker/endpoint/agentic) + CloudWatch 링크
 - `sagemaker-e2e` — E2E 파인튜닝 불변 규칙(endpoint↔Bedrock 분리·JumpStart vs HF DLC·라이선스·합성데이터·cleanup)
 - `code-style` — 코드 스타일(주변 코드 닮기·작은 diff·노트북은 초심자 친화)
-- `communication` — 어조·언어(한국어 우선·용어는 영어·과장 금지·존댓말)
+- `communication` — 어조와 언어(한국어 우선, 용어는 영어, 과장 금지, 존댓말) + 표기 스타일(em dash 금지, 중간점 나열 금지, 해요체와 습니다체 혼용) + **툴 호출 파라미터는 리터럴 UTF-8**(`\uXXXX` 이스케이프 금지, 한글 깨짐 원인: [claude-code#83033](https://github.com/anthropics/claude-code/issues/83033))
 - `fact-integrity` — 사실/인용 무결성(추측을 confirmed로 쓰지 않기·1차 소스·검증 위임)
 
 ## 설치

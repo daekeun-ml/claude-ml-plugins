@@ -1,23 +1,23 @@
 # AWS Authoring Rules
 
-AWS ML 인프라 산출물(가이드·의사결정 문서·슬라이드·실습 코드·고객 답변) 작성 시 항상 적용.
+AWS ML 인프라 산출물(가이드, 의사결정 문서, 슬라이드, 실습 코드, 고객 답변) 작성 시 항상 적용.
 
-**라우팅** — prose/가이드/결정문서 → `aws-solutions-architect`, 실습 코드/노트북 → `aws-ml-engineer`, 사실 검증 → `aws-fact-checker`(read-only). 3 lane 분리: 작성자가 자기 산출물의 사실을 자기승인하지 말 것. 스킬: 플랫폼 선택 → `aws-compute-platform-selector`, SageMaker 심화 → `sagemaker-deep-dive`, 실습 코드 → `aws-ml-lab-code`, 가이드 → `aws-tech-guide`, 사실 검증 → `aws-fact-verify`.
+**라우팅**: prose와 가이드와 결정문서는 `aws-solutions-architect`, 실습 코드와 노트북은 `aws-ml-engineer`, 사실 검증은 `aws-fact-checker`(read-only). 3 lane 분리, 작성자가 자기 산출물의 사실을 자기승인하지 말 것. 스킬은 플랫폼 선택 `aws-compute-platform-selector`, SageMaker 심화 `sagemaker-deep-dive`, 실습 코드 `aws-ml-lab-code`, 가이드 `aws-tech-guide`, 사실 검증 `aws-fact-verify`.
 
-**tier 정확성** — EC2(self) / HyperPod(semi, Slurm·EKS) / SageMaker(fully) 를 구분하고 **tier/모드 오귀속 금지**. 알려진 함정(2026-07 검증): SageMaker deployment guardrails(blue/green·canary)는 SageMaker classic 전용(HyperPod 아님) · Serverless엔 GPU 없음(현재 기준) · Batch Transform은 endpoint가 아니라 job · DLC(workload 컨테이너)와 DLAMI(노드 host 이미지) 구분(DLC는 managed 전용 아님) · ParallelCluster도 노드 자동교체 있음(차이는 관리주체·health-check 깊이) · HMA-on-Slurm은 2025-09부터.
+**tier 정확성**: EC2(self), HyperPod(semi, Slurm과 EKS), SageMaker(fully)를 구분하고 **tier/모드 오귀속 금지**. 알려진 함정(2026-07 검증): SageMaker deployment guardrails(blue/green, canary)는 SageMaker classic 전용이고 HyperPod이 아니다. Serverless엔 GPU 없음(현재 기준). Batch Transform은 endpoint가 아니라 job. DLC(workload 컨테이너)와 DLAMI(노드 host 이미지)는 구분하고, DLC는 managed 전용이 아니다. ParallelCluster도 노드 자동교체가 있으며, 차이는 관리주체와 health-check 깊이다. HMA-on-Slurm은 2025-09부터.
 
-**사실** — 추측을 confirmed로 쓰지 말 것. 빠르게 바뀌는 값(리전·GA·한계·요금)은 "현재 기준"+"배포 전 재확인" 표기. AWS 마케팅 수치는 "AWS 주장"으로 출처 명시. (상세: [[fact-integrity]])
+**사실**: 추측을 confirmed로 쓰지 말 것. 빠르게 바뀌는 값(리전, GA, 한계, 요금)은 "현재 기준"과 "배포 전 재확인"을 표기. AWS 마케팅 수치는 "AWS 주장"으로 출처 명시. (상세: [[fact-integrity]])
 
-**가이드 구조** — 모든 가이드는 상단에 ① TL;DR(한 줄) → ② 기존 Pain Point → ③ Why 3요소. 자매 tier는 대조표로. ❓오해 노트로 헷갈리는 지점 정정.
+**가이드 구조**: 모든 가이드는 상단에 ① TL;DR(한 줄) → ② 기존 Pain Point → ③ Why 3요소. 자매 tier는 대조표로. ❓오해 노트로 헷갈리는 지점 정정.
 
-**작업 비용을 작업 성격에 맞춘다** — 문서·문장 작업은 코드와 다르다. 코드는 잘못 고치면 조용히 깨지지만, 산문은 **빌드가 즉시 검증**한다(mkdocs `strict` + anchor 검증이 깨진 링크·앵커를 실패로 만든다). 그래서:
-- **다중 에이전트 검증 파이프라인을 문장 다듬기에 붙이지 않는다.** 표현 정리·용어 치환·문단 분리는 파일당 1패스로 끝내고, 검사는 빌드에 맡긴다. 여기에 verify → adversarial → gate 단계를 쌓으면 산출물은 같고 시간만 몇 배가 된다.
-- **기계적인 변경은 스크립트로 직접 한다** — 문자열 치환, 파일 이동, 문서 분할, 이미지 배치. 에이전트를 붙일 값이 없다.
+**작업 비용을 작업 성격에 맞춘다**: 문서와 문장 작업은 코드와 다르다. 코드는 잘못 고치면 조용히 깨지지만, 산문은 **빌드가 즉시 검증**한다(mkdocs `strict`와 anchor 검증이 깨진 링크와 앵커를 실패로 만든다). 그래서:
+- **다중 에이전트 검증 파이프라인을 문장 다듬기에 붙이지 않는다.** 표현 정리, 용어 치환, 문단 분리는 파일당 1패스로 끝내고 검사는 빌드에 맡긴다. 여기에 verify → adversarial → gate 단계를 쌓으면 산출물은 같고 시간만 몇 배가 된다.
+- **기계적인 변경은 스크립트로 직접 한다**: 문자열 치환, 파일 이동, 문서 분할, 이미지 배치. 에이전트를 붙일 값이 없다.
 - 오케스트레이션은 **판단이 갈리는 것**에만: 문서를 새로 쓰기, 외부 사실 검증, 설계 선택. 이때도 기계적인 하위 단계는 낮은 effort로 둔다.
-- 문서 작업의 실질 게이트는 셋뿐이다 — 빌드 무경고 / 링크·앵커 유효 / 수치와 링크가 유실되지 않았는지. 이건 grep 과 빌드로 확인되므로 리뷰 에이전트를 세울 필요가 없다.
+- 문서 작업의 실질 게이트는 셋뿐이다: 빌드 무경고, 링크와 앵커 유효, 수치와 링크가 유실되지 않았는지. 이건 grep과 빌드로 확인되므로 리뷰 에이전트를 세울 필요가 없다.
 
-**출처** — 산출물에 **관련 AWS 문서 링크 + 공식 GitHub repo 링크를 전부** 부착("라이브 검증 YYYY-MM" 스탬프). 레지스트리: `aws-compute-platform-selector` 스킬의 `aws-reference-links.md`.
+**출처**: 산출물에 **관련 AWS 문서 링크와 공식 GitHub repo 링크를 전부** 부착("라이브 검증 YYYY-MM" 스탬프). 레지스트리는 `aws-compute-platform-selector` 스킬의 `aws-reference-links.md`.
 
-**실습 코드** — tier 관용구 혼용 금지 · 시크릿/로컬 절대경로 하드코딩 금지(플레이스홀더/env) · cleanup 셀 필수(GPU/endpoint 과금 방지) · SDK/CLI/CRD 사실은 검증 위임. 테스트 방법은 [[aws-handson-testing]], 코드 스타일은 [[code-style]].
+**실습 코드**: tier 관용구 혼용 금지, 시크릿과 로컬 절대경로 하드코딩 금지(플레이스홀더나 env), cleanup 셀 필수(GPU/endpoint 과금 방지), SDK와 CLI와 CRD 사실은 검증 위임. 테스트 방법은 [[aws-handson-testing]], 코드 스타일은 [[code-style]].
 
-**언어·이식성** — 설명은 한국어, 서비스/API/식별자는 영어(상세: [[communication]]). 이 스킬/에이전트는 plugin으로 배포되므로 로컬 절대경로 하드코딩 금지, 상호참조는 이름 기반.
+**언어와 이식성**: 설명은 한국어, 서비스명과 API와 식별자는 영어(상세: [[communication]]). 툴 호출 파라미터의 한글은 리터럴 UTF-8로 쓰고 `\uXXXX` 이스케이프는 금지([[communication]]). 이 스킬과 에이전트는 plugin으로 배포되므로 로컬 절대경로 하드코딩 금지, 상호참조는 이름 기반.
